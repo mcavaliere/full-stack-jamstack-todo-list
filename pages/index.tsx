@@ -1,24 +1,38 @@
+import { useState } from "react";
 import type { NextPage } from "next";
 import Head from "next/head";
 import { useSession, signIn, signOut } from "next-auth/react";
 import {
   Box,
+  Button,
   Flex,
   Heading,
   Container,
   Link,
   OrderedList,
   ListItem,
+  useDisclosure,
 } from "@chakra-ui/react";
 import useSWR from "swr";
 import { Todo } from "@prisma/client";
 import { NavBar } from "../components/NavBar";
+import { AddTodoModal } from "../components/AddTodoModal";
 
 const Home: NextPage = () => {
   const { data: session, status } = useSession();
   const { data: todos } = useSWR("/api/todos/list");
   const isLoading = status === "loading";
   const isLoggedIn = status === "authenticated";
+
+  const {
+    isOpen: addTodoModalIsOpen,
+    onOpen: openAddTodoModal,
+    onClose: closeAddTodoModal,
+  } = useDisclosure();
+
+  const handleAddTodoClicked = () => {
+    openAddTodoModal();
+  };
 
   return (
     <>
@@ -43,17 +57,29 @@ const Home: NextPage = () => {
         )}
 
         {!isLoading && isLoggedIn && (
-          <Box boxShadow='lg' p={6} rounded='md' bg='white'>
-            {todos?.length > 0 ? (
-              <OrderedList>
-                {todos.map(({ text, id }: Todo) => (
-                  <ListItem key={id}>{text}</ListItem>
-                ))}
-              </OrderedList>
-            ) : (
-              <Heading size='lg'>No todos yet. Add some.</Heading>
-            )}
-          </Box>
+          <>
+            <Box boxShadow='lg' p={6} rounded='md' bg='white'>
+              {todos?.length > 0 ? (
+                <OrderedList>
+                  {todos.map(({ text, id }: Todo) => (
+                    <ListItem key={id}>{text}</ListItem>
+                  ))}
+                </OrderedList>
+              ) : (
+                <Heading size='lg'>No todos yet. Add some.</Heading>
+              )}
+            </Box>
+            <Flex direction='row' justify='flex-end' mt={5} variant='primary'>
+              <Button onClick={handleAddTodoClicked}>Add Todo</Button>
+            </Flex>
+          </>
+        )}
+
+        {addTodoModalIsOpen && (
+          <AddTodoModal
+            isOpen={addTodoModalIsOpen}
+            onClose={closeAddTodoModal}
+          />
         )}
       </Container>
     </>
