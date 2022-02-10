@@ -18,7 +18,7 @@ export default NextAuth({
         ...session,
         user: {
           ...session.user,
-          id: user.id,
+          id: user?.id,
         },
       };
     },
