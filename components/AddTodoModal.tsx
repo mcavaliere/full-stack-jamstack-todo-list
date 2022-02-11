@@ -14,26 +14,24 @@ import {
   Input,
 } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
-import Prisma from "@prisma/client";
+import { TodoFormInput } from "../lib/shared/types";
 
 export type AddTodoModalProps = {
   isOpen: boolean;
   onClose: () => void;
+  onSubmit: (todo: TodoFormInput) => void;
 };
 
 export const AddTodoModal = ({
   isOpen = false,
   onClose,
+  onSubmit,
 }: AddTodoModalProps) => {
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm();
-
-  const onSubmit = (text: string): void => {
-    console.log(`submit`, { text });
-  };
+  } = useForm<TodoFormInput>();
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>

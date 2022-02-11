@@ -1,4 +1,3 @@
-import { useState } from "react";
 import type { NextPage } from "next";
 import Head from "next/head";
 import { useSession, signIn, signOut } from "next-auth/react";
@@ -17,12 +16,19 @@ import useSWR from "swr";
 import { Todo } from "@prisma/client";
 import { NavBar } from "../components/NavBar";
 import { AddTodoModal } from "../components/AddTodoModal";
+import { create } from "../lib/client/api/todos";
+import { TodoFormInput } from "../lib/shared/types";
+import { fetcher } from "../lib/client/fetcher";
 
 const Home: NextPage = () => {
   const { data: session, status } = useSession();
-  const { data: todos } = useSWR("/api/todos/list");
+  const { data: todosData, mutate: mutateTodos } = useSWR(
+    "/api/todos/list",
+    fetcher
+  );
   const isLoading = status === "loading";
   const isLoggedIn = status === "authenticated";
+  const todos = todosData?.todos;
 
   const {
     isOpen: addTodoModalIsOpen,
@@ -32,6 +38,16 @@ const Home: NextPage = () => {
 
   const handleAddTodoClicked = () => {
     openAddTodoModal();
+  };
+
+  const handleAddTodoSubmit = async ({ text }: TodoFormInput) => {
+    try {
+      await create({ text });
+      mutateTodos();
+      closeAddTodoModal();
+    } catch (error) {
+      console.warn(`Error creating todo: `, error);
+    }
   };
 
   return (
@@ -77,6 +93,7 @@ const Home: NextPage = () => {
 
         {addTodoModalIsOpen && (
           <AddTodoModal
+            onSubmit={handleAddTodoSubmit}
             isOpen={addTodoModalIsOpen}
             onClose={closeAddTodoModal}
           />

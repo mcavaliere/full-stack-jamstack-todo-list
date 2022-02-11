@@ -2,10 +2,10 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { getSession } from "next-auth/react";
 import { Todo } from "@prisma/client";
 
-import prisma from "../../../lib/server/prismaClientInstance";
+import { prisma } from "../../../lib/server/prismaClientInstance";
 
 type ResponseData = {
-  todos: Todo[];
+  todo: Todo;
 };
 
 type ResponseError = {
@@ -24,30 +24,32 @@ async function handler(
     return res.status(401).end();
   }
 
-  if (req.method !== "GET") {
+  if (req.method !== "POST") {
     return res.status(400).end();
   }
 
+  const { text } = req.body;
   const { user } = session;
 
   try {
-    const todos = await prisma.todo.findMany({
-      where: {
+    const todo = await prisma.todo.create({
+      data: {
+        text,
         user: {
-          id: user!.id,
+          connect: { id: user!.id },
         },
       },
     });
 
-    return res.status(200).json({ todos });
-  } catch (error) {
+    res.status(200).json({ todo });
+  } catch (error: unknown) {
     // https://kentcdodds.com/blog/get-a-catch-block-error-message-with-typescript
     const message: string =
       error instanceof Error ? error.message : (error as string);
 
-    console.warn(`Error in /api/todos/list: `, error);
+    console.warn(`Error in /api/todos/create: `, error);
 
-    return res.status(500).json({ error: message });
+    res.status(500).json({ error: message });
   }
 }
 

@@ -1,4 +1,5 @@
-import { Prisma, Todo } from "@prisma/client";
+import { Todo } from "@prisma/client";
+import { TodoFormInput } from "../../shared/types";
 
 const headers = {
   Accept: "application/json",
@@ -26,7 +27,7 @@ export async function get(id: number): Promise<Todo> {
  *
  * Create a todo.
  */
-export async function create(todo: Prisma.TodoCreateInput): Promise<Todo> {
+export async function create(todo: TodoFormInput): Promise<Todo> {
   const response = await fetch("/api/todos/create", {
     method: "POST",
     body: JSON.stringify(todo),
@@ -47,10 +48,7 @@ export async function create(todo: Prisma.TodoCreateInput): Promise<Todo> {
  *
  * Update a todo.
  */
-export async function update(
-  id: number,
-  todo: Prisma.TodoUpdateInput
-): Promise<Todo> {
+export async function update(id: number, todo: TodoFormInput): Promise<Todo> {
   const response = await fetch(`/api/todos/${id}/update`, {
     method: "PATCH",
     headers,
