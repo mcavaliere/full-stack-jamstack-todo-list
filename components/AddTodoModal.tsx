@@ -1,5 +1,9 @@
 import {
   Button,
+  FormControl,
+  FormLabel,
+  FormErrorMessage,
+  FormHelperText,
   Modal,
   ModalOverlay,
   ModalContent,
@@ -9,6 +13,8 @@ import {
   ModalCloseButton,
   Input,
 } from "@chakra-ui/react";
+import { useForm } from "react-hook-form";
+import Prisma from "@prisma/client";
 
 export type AddTodoModalProps = {
   isOpen: boolean;
@@ -18,24 +24,49 @@ export type AddTodoModalProps = {
 export const AddTodoModal = ({
   isOpen = false,
   onClose,
-}: AddTodoModalProps) => (
-  <>
+}: AddTodoModalProps) => {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
+
+  const onSubmit = (text: string): void => {
+    console.log(`submit`, { text });
+  };
+
+  return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>Modal Title</ModalHeader>
-        <ModalCloseButton />
-        <ModalBody>
-          <Input type='text' placeholder='Name your todo...' />
-        </ModalBody>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <ModalHeader>Add Todo</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <FormControl>
+              <Input
+                type='text'
+                id='text'
+                placeholder='Name your todo...'
+                {...register("text", { required: true })}
+              />
+              {errors.text && (
+                <FormErrorMessage>There was an error.</FormErrorMessage>
+              )}
+              <FormHelperText>Keep it short and memorable.</FormHelperText>
+            </FormControl>
+          </ModalBody>
 
-        <ModalFooter>
-          <Button colorScheme='blue' mr={3} onClick={onClose}>
-            Close
-          </Button>
-          <Button variant='ghost'>Secondary Action</Button>
-        </ModalFooter>
+          <ModalFooter>
+            <Button mr={3} variant='ghost' onClick={onClose}>
+              Close
+            </Button>
+            <Button colorScheme='blue' type='submit'>
+              Save
+            </Button>
+          </ModalFooter>
+        </form>
       </ModalContent>
     </Modal>
-  </>
-);
+  );
+};
