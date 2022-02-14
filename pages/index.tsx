@@ -8,13 +8,14 @@ import {
   Heading,
   Container,
   Link,
-  OrderedList,
-  ListItem,
+  StackDivider,
+  VStack,
   useDisclosure,
 } from "@chakra-ui/react";
 import useSWR from "swr";
 import { Todo } from "@prisma/client";
 import { NavBar } from "../components/NavBar";
+import { TodoRow } from "../components/TodoRow";
 import { AddTodoModal } from "../components/AddTodoModal";
 import { create } from "../lib/client/api/todos";
 import { TodoFormInput } from "../lib/shared/types";
@@ -76,17 +77,19 @@ const Home: NextPage = () => {
           <>
             <Box boxShadow='lg' p={6} rounded='md' bg='white'>
               {todos?.length > 0 ? (
-                <OrderedList>
-                  {todos.map(({ text, id }: Todo) => (
-                    <ListItem key={id}>{text}</ListItem>
+                <VStack divider={<StackDivider />} align='space-between'>
+                  {todos.map((todo: Todo) => (
+                    <TodoRow todo={todo} key={todo.id} />
                   ))}
-                </OrderedList>
+                </VStack>
               ) : (
                 <Heading size='lg'>No todos yet. Add some.</Heading>
               )}
             </Box>
             <Flex direction='row' justify='flex-end' mt={5} variant='primary'>
-              <Button onClick={handleAddTodoClicked}>Add Todo</Button>
+              <Button onClick={handleAddTodoClicked} colorScheme='blue'>
+                Add Todo
+              </Button>
             </Flex>
           </>
         )}
